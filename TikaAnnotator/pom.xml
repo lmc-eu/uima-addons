@@ -47,7 +47,7 @@ element, and just changing the following two properties -->
 
   <properties>
     <uimaScmProject>${project.artifactId}</uimaScmProject>
-    <uimaDependencyVersion>2.3.1</uimaDependencyVersion>
+    <uimaDependencyVersion>2.9.0</uimaDependencyVersion>
     <pearMainDescriptor>desc/MarkupAnnotator.xml</pearMainDescriptor>
     <tika-version>0.8</tika-version>
   </properties>
@@ -109,6 +109,14 @@ element, and just changing the following two properties -->
     
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>1.6</source>
+            <target>1.6</target>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>    
     
