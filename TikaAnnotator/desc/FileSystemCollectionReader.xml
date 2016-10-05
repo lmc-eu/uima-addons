@@ -73,9 +73,9 @@
       <capability>
         <inputs/>
         <outputs>
-          <type allAnnotatorFeatures="true">com.digitalpebble.uima.SourceDocumentAnnotation</type>
-          <type allAnnotatorFeatures="true">com.digitalpebble.uima.MarkupAnnotation</type>
-          <type allAnnotatorFeatures="true">com.digitalpebble.uima.FeatureValue</type>
+          <type allAnnotatorFeatures="true">org.apache.uima.tika.SourceDocumentAnnotation</type>
+          <type allAnnotatorFeatures="true">org.apache.uima.tika.MarkupAnnotation</type>
+          <type allAnnotatorFeatures="true">org.apache.uima.tika.FeatureValue</type>
         </outputs>
         <languagesSupported/>
       </capability>
