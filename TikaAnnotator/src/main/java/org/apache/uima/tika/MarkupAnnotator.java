@@ -24,6 +24,7 @@ import org.apache.tika.language.LanguageIdentifier;
 import org.apache.tika.language.LanguageProfile;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.CasAnnotator_ImplBase;
@@ -45,6 +46,7 @@ import java.util.Iterator;
 /**
  * Uses TIKA to convert original markup into UIMA annotations*
  */
+@SuppressWarnings("StringBufferReplaceableByString")
 public class MarkupAnnotator extends CasAnnotator_ImplBase {
 
 
@@ -136,9 +138,10 @@ public class MarkupAnnotator extends CasAnnotator_ImplBase {
 
     Metadata md = new Metadata();
     MarkupHandler handler = new MarkupHandler();
+    final ParseContext parseContext = new ParseContext();
 
     try {
-      parser.parse(originalStream, handler, md);
+      parser.parse(originalStream, handler, md, parseContext);
     }
     catch (Exception e) {
       // if we have a problem just dump the message and continue
@@ -151,6 +154,7 @@ public class MarkupAnnotator extends CasAnnotator_ImplBase {
       try {
         originalStream.close();
       } catch (IOException e) {
+        //ignored
       }
     }
 

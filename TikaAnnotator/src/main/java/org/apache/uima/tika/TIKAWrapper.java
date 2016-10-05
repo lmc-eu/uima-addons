@@ -23,6 +23,7 @@ import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
@@ -81,7 +82,7 @@ public class TIKAWrapper {
         MarkupHandler handler = new MarkupHandler();
 
         try {
-            parser.parse(originalStream, handler, md);
+            parser.parse(originalStream, handler, md, new ParseContext());
         } catch (Exception e) {
             // if we have a problem just dump the message and continue
             // getLogger().log(Level.WARNING,"Problem converting file : "+URI+"\t"+e.getMessage());

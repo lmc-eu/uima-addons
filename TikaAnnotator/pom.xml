@@ -49,7 +49,7 @@ element, and just changing the following two properties -->
     <uimaScmProject>${project.artifactId}</uimaScmProject>
     <uimaDependencyVersion>2.9.0</uimaDependencyVersion>
     <pearMainDescriptor>desc/MarkupAnnotator.xml</pearMainDescriptor>
-    <tika-version>0.8</tika-version>
+    <tika-version>1.13</tika-version>
   </properties>
 
   <dependencies>
