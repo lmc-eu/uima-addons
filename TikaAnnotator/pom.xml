@@ -20,17 +20,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apache.uima</groupId>
-    <artifactId>uima-addons-parent</artifactId>
-    <version>2.3.2-SNAPSHOT</version>
-    <relativePath>../uima-addons-parent</relativePath>
-  </parent>
-
+  <groupId>org.apache.uima</groupId>
   <artifactId>TikaAnnotator</artifactId>
   <version>2.3.2-SNAPSHOT</version>
   <name>Apache UIMA Annotator: ${project.artifactId}</name>
-  <url>${uimaWebsiteUrl}</url>
 
   <!-- Special inheritance note
 even though the <scm> element that follows is exactly the
@@ -116,30 +109,6 @@ element, and just changing the following two properties -->
     
     <pluginManagement>
       <plugins>
-        <plugin>
-          <groupId>org.apache.rat</groupId>
-          <artifactId>apache-rat-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>default-cli</id>
-              <configuration>
-                <excludes>
-                  <exclude>release.properties</exclude> <!-- release generated artifact -->
-                  <exclude>README*</exclude>
-                  <exclude>RELEASE_NOTES*</exclude>
-                  <exclude>issuesFixed/**</exclude> <!-- generated file -->
-                  <exclude>marker-file-identifying-*</exclude> <!-- empty file -->
-                  <exclude>DEPENDENCIES</exclude>  <!-- generated file -->
-                  
-                  <exclude>src/main/java/org/apache/uima/tika/AttributeFS*.java</exclude> <!-- JCasgen generated -->
-                  <exclude>src/main/java/org/apache/uima/tika/FeatureValue*.java</exclude> <!-- JCasgen generated -->
-                  <exclude>src/main/java/org/apache/uima/tika/MarkupAnnotation*.java</exclude> <!-- JCasgen generated -->
-                  <exclude>src/main/java/org/apache/uima/tika/SourceDocumentAnnotation*.java</exclude> <!-- JCasgen generated -->
-                </excludes>              
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>         
       </plugins>
     </pluginManagement>    
     
