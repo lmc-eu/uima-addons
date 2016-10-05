@@ -107,6 +107,7 @@ public class FileSystemCollectionReaderTest {
         int count = 0;
         final Set<String> parsedFilenames = new TreeSet<>();
         Map<String, List<String>> h3Texts = new TreeMap<>();
+        Map<String, List<String>> emTexts = new TreeMap<>();
         for (JCas result : SimplePipeline.iteratePipeline(reader)) {
             count++;
             System.out.println();
@@ -124,11 +125,8 @@ public class FileSystemCollectionReaderTest {
             parsedFilenames.add(filename);
 
             //find bold texts
-            h3Texts.put(filename, JCasUtil.select(result, MarkupAnnotation.class).stream()
-                    .filter(a -> "h3".equalsIgnoreCase(a.getName()))
-                    .map(MarkupAnnotation::getCoveredText)
-                    .collect(Collectors.toList())
-            );
+            h3Texts.put(filename, findElementMarkup(result, "h3"));
+            emTexts.put(filename, findElementMarkup(result, "em"));
 
 /*
             System.out.println(Arrays.toString(aSource.getFeatures().toStringArray()));
@@ -152,6 +150,7 @@ public class FileSystemCollectionReaderTest {
         Assert.assertEquals(new TreeSet<>(TESTING_DOCS), parsedFilenames);
 
         Assert.assertEquals(Collections.emptyList(), h3Texts.get("references.pdf"));
+        Assert.assertEquals(Collections.emptyList(), emTexts.get("references.pdf"));
         //noinspection ToArrayCallWithZeroLengthArrayArgument
         Assert.assertArrayEquals(new String[]{
                 "We consider ourselves not simply a group of projects sharing a server, but rather a community of developers and users.",
@@ -160,7 +159,17 @@ public class FileSystemCollectionReaderTest {
                 "Latest News",
                 "Latest Activity",
         }, h3Texts.get("apache.html").toArray(new String[0]));
+        //this is strange...
+//        Assert.assertEquals(Collections.emptyList(), emTexts.get("apache.html"));
+        Assert.assertEquals(2, emTexts.get("apache.html").size());
 
+    }
+
+    private List<String> findElementMarkup(JCas result, String elementName) {
+        return JCasUtil.select(result, MarkupAnnotation.class).stream()
+                .filter(a -> elementName.equalsIgnoreCase(a.getName()))
+                .map(MarkupAnnotation::getCoveredText)
+                .collect(Collectors.toList());
     }
 
     protected String fetchDocumentFeature(SourceDocumentAnnotation annotation, String featureName) {
