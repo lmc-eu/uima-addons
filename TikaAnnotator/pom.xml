@@ -98,6 +98,13 @@ element, and just changing the following two properties -->
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.uima</groupId>
+      <artifactId>uimafit-core</artifactId>
+      <version>2.2.0</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
