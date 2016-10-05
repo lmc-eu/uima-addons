@@ -77,10 +77,12 @@ element, and just changing the following two properties -->
       <artifactId>tika-parsers</artifactId>
       <version>${tika-version}</version>
       <exclusions>
+<!--
         <exclusion>
           <groupId>pdfbox</groupId>
           <artifactId>pdfbox</artifactId>
         </exclusion>
+-->
       </exclusions>
     </dependency>
     <dependency>
