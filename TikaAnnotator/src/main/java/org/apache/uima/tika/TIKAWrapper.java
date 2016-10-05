@@ -23,6 +23,7 @@ import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.DefaultParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.uima.cas.CAS;
@@ -74,7 +75,7 @@ public class TIKAWrapper {
         Parser parser = config.getParser();
 
         // it that does not work
-        if (parser == null) {
+        if (parser == null || parser instanceof DefaultParser) {
             parser = new AutoDetectParser(config);
         }
 
