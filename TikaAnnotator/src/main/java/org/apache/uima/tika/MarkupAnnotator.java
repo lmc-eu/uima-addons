@@ -52,7 +52,6 @@ public class MarkupAnnotator extends CasAnnotator_ImplBase {
 
   private final static String ORIGINAL_VIEW_PARAM_NAME = "ORIGINAL_VIEW_PARAM_NAME";
   private final static String TEXT_VIEW_PARAM_NAME = "TEXT_VIEW_PARAM_NAME";
-  private final static String SET_TEXT_VIEW_DEFAULT_PARAM_NAME = "SET_TEXT_VIEW_DEFAULT_PARAM_NAME";
 
   private final static String tika_file_param = "tikaConfigFile";
 
@@ -61,9 +60,6 @@ public class MarkupAnnotator extends CasAnnotator_ImplBase {
 
   // takes an option indicating the name of the view containing the text version of the document
   private String textViewName = "textView";
-
-  // whether to make the text view default or not
-  private Boolean makeTextDefaultView = true;
 
   // configuration for TIKA - can be created by specifying a custom resource
   private TikaConfig config = null;
@@ -82,14 +78,6 @@ public class MarkupAnnotator extends CasAnnotator_ImplBase {
       this.getContext().getLogger().log(Level.WARNING, new StringBuffer("Parameter TEXT_VIEW_PARAM_NAME is ")
               .append(textViewName).toString());
 
-    makeTextDefaultView = (Boolean) aContext.getConfigParameterValue(SET_TEXT_VIEW_DEFAULT_PARAM_NAME);
-    if (makeTextDefaultView == null) {
-      this.getContext().getLogger().log(Level.WARNING,
-              new StringBuffer("Parameter SET_TEXT_VIEW_DEFAULT_PARAM_NAME is null; setting to \"true\"").toString());
-      makeTextDefaultView = new Boolean(true);
-    } else
-      this.getContext().getLogger().log(Level.WARNING, new StringBuffer("Parameter SET_TEXT_VIEW_DEFAULT_PARAM_NAME is ")
-              .append(makeTextDefaultView).toString());
     // initialise TIKA parser
     // try to get a custom config
     URL tikaConfigURL = null;
