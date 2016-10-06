@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -96,7 +97,7 @@ public class FileSystemCollectionReaderTest {
         reader.doFullValidation();
         System.out.println("starting processing of files: " + TESTING_DOCS.getFilenames());
         final Iterable<JCas> results = SimplePipeline.iteratePipeline(reader);
-        TESTING_DOCS.checkResults(results);
+        TESTING_DOCS.checkResults(results, Optional.empty());
     }
 
 }

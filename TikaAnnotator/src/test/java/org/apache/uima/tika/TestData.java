@@ -9,6 +9,7 @@ import org.junit.Assert;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -68,7 +69,13 @@ public class TestData {
         return testingDocs.keySet();
     }
 
-    public void checkResults(Iterable<JCas> results) {
+    /**
+     * Check results.
+     * @param results             collection of result CAS documents
+     * @param filenameProvider    optional: function that provides source filename for each CAS;
+     *                            <br />when not available, the CAS document must contain URL fature in SourceDocumentAnnotation!
+     */
+    public void checkResults(Iterable<JCas> results, Optional<Function<JCas, String>> filenameProvider) {
         int count = 0;
         final Set<String> parsedFilenames = new TreeSet<>();
         Map<String, Map<String, List<String>>> elementTexts = new TreeMap<>();
@@ -84,8 +91,15 @@ public class TestData {
             System.out.println("  url: " + url);
             System.out.println("  content-type: " + fetchDocumentFeature(aSource, "Content-Type"));
 
-            Assert.assertNotNull(url);
-            String filename = url.replaceFirst("^.*/", "");
+            final String filename;
+            if (filenameProvider.isPresent()) {
+                filename = filenameProvider.get().apply(result);
+                Assert.assertNotNull(filename);
+            } else {
+                Assert.assertNotNull(url);
+                filename = url.replaceFirst("^.*/", "");
+            }
+            System.out.println("  filename: " + filename);
             parsedFilenames.add(filename);
             final TestData.TestingDocDescriptor descr = testingDocs.get(filename);
             Assert.assertNotNull("WTF? unknown parsed file " + filename, descr);
