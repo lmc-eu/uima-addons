@@ -1,5 +1,7 @@
 package org.apache.uima.tika;
 
+import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.uima.UIMAException;
 import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
@@ -22,14 +24,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,9 +42,44 @@ import java.util.stream.Stream;
  */
 public class FileSystemCollectionReaderTest {
 
-    protected static final List<String> TESTING_DOCS = Arrays.asList("apache.html", "references.pdf");
+    protected static final Map<String, TestingDocDescriptor> TESTING_DOCS = ImmutableMap.of(
+            "apache.html", new TestingDocDescriptor(false, ImmutableMap.of(
+                    "h3", new String[]{
+                            "We consider ourselves not simply a group of projects sharing a server, but rather a community of developers and users.",
+                            "The Apache Software Foundation provides support for the Apache community of open-source software projects.",
+                            "The Apache projects are defined by collaborative consensus based processes, an open, pragmatic software license and a desire to create high quality software that leads the way in its field.",
+                            "Latest News",
+                            "Latest Activity",
+                    }
+            )),
+            "references.pdf", new TestingDocDescriptor(false, ImmutableMap.of(
+                    "h3", ArrayUtils.EMPTY_STRING_ARRAY,
+                    "em", ArrayUtils.EMPTY_STRING_ARRAY
+            )),
+            "tika-parsing-test.docx", new TestingDocDescriptor(true, ImmutableMap.of(
+                    "b", new String[]{"License and Disclaimer.", "Trademarks."}
+            )),
+            "tika-parsing-test.odt", new TestingDocDescriptor(true, ImmutableMap.of(
+                    "b", new String[]{"License and Disclaimer.", "Trademarks."}
+            ))
+    );
 
-    private static final Pattern CUTOFF_LINES = Pattern.compile("[\n\r].*", Pattern.DOTALL);
+    static class TestingDocDescriptor {
+        final boolean printMarkup;
+        /**
+         * Map: key = element name (lowercase), value = array of expected values.
+         */
+        final Map<String, String[]> expectedValues;
+
+        public TestingDocDescriptor(boolean printMarkup, Map<String, String[]> expectedValues) {
+            this.printMarkup = printMarkup;
+            this.expectedValues = expectedValues;
+        }
+    }
+
+
+    //-------------------------------------------------------------------------------------------------------------
+
 
     protected Path inputDir;
     protected Path outputDir;
@@ -54,7 +90,7 @@ public class FileSystemCollectionReaderTest {
         outputDir = Files.createTempDirectory("TikaAnnotatorTestOuput");
 
         //and copy input content
-        for (String filename : TESTING_DOCS) {
+        for (String filename : TESTING_DOCS.keySet()) {
             final URL url = getClass().getResource("/docs/" + filename);
             Assert.assertNotNull("testing resource " + filename + " not found", url);
             final Path outputFile = inputDir.resolve(filename);
@@ -106,8 +142,7 @@ public class FileSystemCollectionReaderTest {
         System.out.println("starting processing of files: " + TESTING_DOCS);
         int count = 0;
         final Set<String> parsedFilenames = new TreeSet<>();
-        Map<String, List<String>> h3Texts = new TreeMap<>();
-        Map<String, List<String>> emTexts = new TreeMap<>();
+        Map<String, Map<String, List<String>>> elementTexts = new TreeMap<>();
         for (JCas result : SimplePipeline.iteratePipeline(reader)) {
             count++;
             System.out.println();
@@ -123,52 +158,59 @@ public class FileSystemCollectionReaderTest {
             Assert.assertNotNull(url);
             String filename = url.replaceFirst("^.*/", "");
             parsedFilenames.add(filename);
+            final TestingDocDescriptor descr = TESTING_DOCS.get(filename);
+            Assert.assertNotNull("WTF? unknown parsed file " + filename, descr);
 
             //find bold texts
-            h3Texts.put(filename, findElementMarkup(result, "h3"));
-            emTexts.put(filename, findElementMarkup(result, "em"));
+            elementTexts.put(filename, descr.expectedValues.keySet().stream().collect(Collectors.toMap(
+                    Function.identity(), elemName -> findElementMarkup(result, elemName)
+            )));
 
-/*
-            System.out.println(Arrays.toString(aSource.getFeatures().toStringArray()));
-            System.out.println("markups:");
-            for (MarkupAnnotation a : JCasUtil.select(result, MarkupAnnotation.class)) {
-                //ignore empty annotations...
-                if (a.getBegin() == a.getEnd()) {
-                    continue;
-                }
-                String text = a.getCoveredText();
-                if (text.length() > 60) {
-                    text = text.substring(0, 55) + "\u2026";
-                }
-                text = CUTOFF_LINES.matcher(text).replaceAll("\u2026\\\\n");
-                System.out.printf("   %s(%d-%d): %s%n", a.getName(), a.getBegin(), a.getEnd(), text);
+            if (descr.printMarkup) {
+                printMarkups(result, aSource);
             }
 
- */
         }
         Assert.assertEquals(TESTING_DOCS.size(), count);
-        Assert.assertEquals(new TreeSet<>(TESTING_DOCS), parsedFilenames);
+        Assert.assertEquals(TESTING_DOCS.keySet(), parsedFilenames);
 
-        Assert.assertEquals(Collections.emptyList(), h3Texts.get("references.pdf"));
-        Assert.assertEquals(Collections.emptyList(), emTexts.get("references.pdf"));
-        //noinspection ToArrayCallWithZeroLengthArrayArgument
-        Assert.assertArrayEquals(new String[]{
-                "We consider ourselves not simply a group of projects sharing a server, but rather a community of developers and users.",
-                "The Apache Software Foundation provides support for the Apache community of open-source software projects.",
-                "The Apache projects are defined by collaborative consensus based processes, an open, pragmatic software license and a desire to create high quality software that leads the way in its field.",
-                "Latest News",
-                "Latest Activity",
-        }, h3Texts.get("apache.html").toArray(new String[0]));
-        //this is strange...
-//        Assert.assertEquals(Collections.emptyList(), emTexts.get("apache.html"));
-        Assert.assertEquals(2, emTexts.get("apache.html").size());
+        for (Map.Entry<String, Map<String, List<String>>> ee : elementTexts.entrySet()) {
+            final TestingDocDescriptor descr = TESTING_DOCS.get(ee.getKey());
+            for (Map.Entry<String, List<String>> le : ee.getValue().entrySet()) {
+                final List<String> foundValues = le.getValue();
+                Assert.assertArrayEquals(
+                        "invalid values for document " + ee.getKey() + ", element " + le.getKey(),
+                        descr.expectedValues.get(le.getKey()),
+                        foundValues.toArray(new String[foundValues.size()])
+                );
+            }
+        }
+    }
 
+    private static final Pattern CUTOFF_LINES = Pattern.compile("[\n\r].*", Pattern.DOTALL);
+
+    private void printMarkups(JCas result, SourceDocumentAnnotation aSource) {
+//        System.out.println(Arrays.toString(aSource.getFeatures().toStringArray()));
+        System.out.println("  markups:");
+        for (MarkupAnnotation a : JCasUtil.select(result, MarkupAnnotation.class)) {
+            //ignore empty annotations...
+            if (a.getBegin() == a.getEnd()) {
+                continue;
+            }
+            String text = a.getCoveredText();
+            if (text.length() > 60) {
+                text = text.substring(0, 55) + "\u2026";
+            }
+            text = CUTOFF_LINES.matcher(text).replaceAll("\u2026\\\\n");
+            System.out.printf("     %s(%d-%d): %s%n", a.getName(), a.getBegin(), a.getEnd(), text);
+        }
     }
 
     private List<String> findElementMarkup(JCas result, String elementName) {
         return JCasUtil.select(result, MarkupAnnotation.class).stream()
                 .filter(a -> elementName.equalsIgnoreCase(a.getName()))
                 .map(MarkupAnnotation::getCoveredText)
+                .map(String::trim)
                 .collect(Collectors.toList());
     }
 
