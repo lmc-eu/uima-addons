@@ -57,7 +57,7 @@ public class MarkupAnnotator extends CasAnnotator_ImplBase {
   private final static String tika_file_param = "tikaConfigFile";
 
   // takes an option indicating the name of the view containing the binary document
-  private String originalViewName = "_InitialView";
+  private String originalViewName = CAS.NAME_DEFAULT_SOFA;
 
   // takes an option indicating the name of the view containing the text version of the document
   private String textViewName = "textView";

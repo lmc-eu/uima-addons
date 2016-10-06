@@ -41,8 +41,6 @@ public class TikaMarkupAnnotatorTest {
 
     protected final TestData TESTING_DOCS = TestData.DEFAULT;
 
-    private final String originalView = "_InitialView";
-
     @Test
     public void realParseTest() throws UIMAException, IOException {
 

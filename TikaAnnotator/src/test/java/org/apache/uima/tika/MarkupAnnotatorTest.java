@@ -37,7 +37,7 @@ import static org.junit.Assert.fail;
  */
 public class MarkupAnnotatorTest {
   private String markupAnnotatorDescPath = "src/test/resources/AggregateTestAE.xml";
-  private final String originalView = "_InitialView";
+  private final String originalView = CAS.NAME_DEFAULT_SOFA;
 
   @Test
   public void integrationTest() {
