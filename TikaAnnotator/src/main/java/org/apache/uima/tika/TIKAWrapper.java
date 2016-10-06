@@ -57,19 +57,14 @@ public class TIKAWrapper {
     }
 
 
-    public void populateCASfromURL(CAS cas, URL uri, String language) throws CASException {
-        populateCASfromURL(cas, uri, null, language);
+    public void populateCASfromURL(CAS cas, URL url, String mime, String language) throws CASException, IOException {
+        try(InputStream is = url.openStream(); InputStream originalStream = new BufferedInputStream(is)) {
+            populateCASfromURL(cas, originalStream, url, mime, language);
+        }
     }
 
-    public void populateCASfromURL(CAS cas, URL url, String mime, String language) throws CASException {
-
-        InputStream originalStream = null;
-        try {
-            originalStream = new BufferedInputStream(
-                    url.openStream());
-        } catch (IOException e1) {
-            throw new CASException(e1);
-        }
+    public void populateCASfromURL(CAS cas, InputStream originalStream,
+                                   URL url, String mime, String language) throws IOException, CASException {
 
         // use custom parser or rely on autodetect
         Parser parser = config.getParser();
@@ -108,10 +103,16 @@ public class TIKAWrapper {
 
         SourceDocumentAnnotation docAnnotation = new SourceDocumentAnnotation(jcas);
 
+        //add URL as metadata, if present
+        if (url != null) {
+            md.add("url", url.toString());
+        }
+
         // now iterate on the metadata found by Tika and add them to the info
         if (docAnnotation.getFeatures() == null) {
             docAnnotation.setFeatures((FSArray) cas
-                    .createArrayFS(md.size() + 1));
+                    .createArrayFS(md.size())
+            );
         }
         int i = 0;
         for (; i < md.size(); i++) {
@@ -123,11 +124,6 @@ public class TIKAWrapper {
             // getLogger().log(Level.FINER,URI+"\t"+name+"\t"+value);
             docAnnotation.setFeatures(i, fv);
         }
-
-        FeatureValue fv = new FeatureValue(jcas);
-        fv.setName("url");
-        fv.setValue(url.toString());
-        docAnnotation.setFeatures(i, fv);
 
         docAnnotation.addToIndexes();
     }
