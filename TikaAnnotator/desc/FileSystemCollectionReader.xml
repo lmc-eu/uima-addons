@@ -63,12 +63,6 @@
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
-        <name>MIME</name>
-        <value>
-          <string>text/html</string>
-        </value>
-      </nameValuePair>
-      <nameValuePair>
         <name>tikaLanguageDetector</name>
         <value>
           <boolean>false</boolean>
