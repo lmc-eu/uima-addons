@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class TestData {
 
     public static final TestData DEFAULT = new TestData(ImmutableMap.of(
-            "apache.html", new TestingDocDescriptor(false, ImmutableMap.of(
+            "apache.html", new TestingDocDescriptor(false, "en", ImmutableMap.of(
                     "h3", new String[]{
                             "We consider ourselves not simply a group of projects sharing a server, but rather a community of developers and users.",
                             "The Apache Software Foundation provides support for the Apache community of open-source software projects.",
@@ -32,14 +32,14 @@ public class TestData {
                             "Latest Activity",
                     }
             )),
-            "references.pdf", new TestingDocDescriptor(false, ImmutableMap.of(
+            "references.pdf", new TestingDocDescriptor(false, "en", ImmutableMap.of(
                     "h3", ArrayUtils.EMPTY_STRING_ARRAY,
                     "em", ArrayUtils.EMPTY_STRING_ARRAY
             )),
-            "tika-parsing-test.docx", new TestingDocDescriptor(true, ImmutableMap.of(
+            "tika-parsing-test.docx", new TestingDocDescriptor(true, "en", ImmutableMap.of(
                     "b", new String[]{"License and Disclaimer.", "Trademarks."}
             )),
-            "tika-parsing-test.odt", new TestingDocDescriptor(true, ImmutableMap.of(
+            "tika-parsing-test.odt", new TestingDocDescriptor(true, "en", ImmutableMap.of(
                     "b", new String[]{"License and Disclaimer.", "Trademarks."}
             ))
     ));
@@ -47,13 +47,15 @@ public class TestData {
 
     static class TestingDocDescriptor {
         final boolean printMarkup;
+        final String detectedLanguage;
         /**
          * Map: key = element name (lowercase), value = array of expected values.
          */
         final Map<String, String[]> expectedValues;
 
-        public TestingDocDescriptor(boolean printMarkup, Map<String, String[]> expectedValues) {
+        public TestingDocDescriptor(boolean printMarkup, String detectedLanguage, Map<String, String[]> expectedValues) {
             this.printMarkup = printMarkup;
+            this.detectedLanguage = detectedLanguage;
             this.expectedValues = expectedValues;
         }
     }
@@ -71,9 +73,10 @@ public class TestData {
 
     /**
      * Check results.
-     * @param results             collection of result CAS documents
-     * @param filenameProvider    optional: function that provides source filename for each CAS;
-     *                            <br />when not available, the CAS document must contain URL fature in SourceDocumentAnnotation!
+     *
+     * @param results          collection of result CAS documents
+     * @param filenameProvider optional: function that provides source filename for each CAS;
+     *                         <br />when not available, the CAS document must contain URL fature in SourceDocumentAnnotation!
      */
     public void checkResults(Iterable<JCas> results, Optional<Function<JCas, String>> filenameProvider) {
         int count = 0;
@@ -111,6 +114,11 @@ public class TestData {
 
             if (descr.printMarkup) {
                 printMarkups(result, aSource);
+            }
+
+            if (result.getDocumentLanguage() != null) {
+                Assert.assertEquals("failed to detect language for " + filename,
+                        descr.detectedLanguage, result.getDocumentLanguage());
             }
 
         }
