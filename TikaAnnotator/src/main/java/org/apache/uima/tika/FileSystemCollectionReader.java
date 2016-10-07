@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * A collection reader that reads documents from a directory in the
  * filesystem.
- * 
+ *
  * This resource is different from the one in UIMA example as it uses TIKA to
  * extract the text from binary documents and generates annotations to represent
  * the markup
@@ -57,14 +57,14 @@ public class FileSystemCollectionReader extends CollectionReader_ImplBase {
 	public static final String PARAM_LANGUAGE = "Language";
 
 	public final static String PARAM_MIME = "MIME";
-	
+
 
 	private String mLanguage;
-	
+
 	private String mMIME;
-	
+
 	private List<File> mFiles;
-	
+
 	private int mCurrentIndex;
 
 	private TIKAWrapper tika;
@@ -84,9 +84,9 @@ public class FileSystemCollectionReader extends CollectionReader_ImplBase {
 		// open input stream to file
 		File file = mFiles.get(mCurrentIndex++);
 
-		// call Tika wrapper 
+		// call Tika wrapper
 		try {
-			tika.populateCASfromURL(aCAS, file.toURI().toURL(), this.mMIME, this.mLanguage);
+			tika.populateCASfromURL(aCAS, file.toURI().toURL(), this.mMIME);
 		} catch (CASException e) {
 		  String msg = String.format("Problem converting file: %s\t%s%n", file.toURI().toURL(), e.getMessage());
 			getLogger().log(Level.WARNING, msg);
@@ -95,6 +95,9 @@ public class FileSystemCollectionReader extends CollectionReader_ImplBase {
 			}
 			throw new IOException(msg);
 	    	//jcas.setDocumentText(" "); return;
+		}
+		if (this.mLanguage!=null && !this.mLanguage.trim().isEmpty()) {
+			aCAS.setDocumentLanguage(mLanguage);
 		}
 	}
 
@@ -116,7 +119,7 @@ public class FileSystemCollectionReader extends CollectionReader_ImplBase {
 	 * Gets the total number of documents that will be returned by this
 	 * collection reader. This is not part of the general collection reader
 	 * interface.
-	 * 
+	 *
 	 * @return the number of documents in the collection
 	 */
 	public int getNumberOfDocuments() {
@@ -131,7 +134,7 @@ public class FileSystemCollectionReader extends CollectionReader_ImplBase {
 		mCurrentIndex = 0;
 
 		mMIME = (String) getConfigParameterValue(FileSystemCollectionReader.PARAM_MIME);
-		
+
 		// initialise TIKA parser
 		tika = TIKAWrapperFactory.createTika(getUimaContext());
 

@@ -76,14 +76,14 @@ public class TIKAWrapper {
     }
 
 
-    public void populateCASfromURL(CAS cas, URL url, String mime, String language) throws CASException, IOException {
+    public void populateCASfromURL(CAS cas, URL url, String mime) throws CASException, IOException {
         try (InputStream is = url.openStream(); InputStream originalStream = new BufferedInputStream(is)) {
-            populateCASfromURL(cas, originalStream, url, mime, language);
+            populateCASfromURL(cas, originalStream, url, mime);
         }
     }
 
     public void populateCASfromURL(CAS cas, InputStream originalStream,
-                                   URL url, String mime, String language) throws IOException, CASException {
+                                   URL url, String mime) throws IOException, CASException {
 
         // use custom parser or rely on autodetect
         Parser parser = config.getParser();
@@ -104,11 +104,6 @@ public class TIKAWrapper {
             // cas.setDocumentText(""); return;
             throw new CASException(e);
         } finally {
-            // set language if it was explicitly specified as a configuration
-            // parameter
-            if (language != null) {
-                cas.setDocumentLanguage(language);
-            }
             try {
                 originalStream.close();
             } catch (IOException ignored) {

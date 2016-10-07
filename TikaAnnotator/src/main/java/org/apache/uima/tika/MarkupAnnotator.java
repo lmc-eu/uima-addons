@@ -19,17 +19,13 @@
 
 package org.apache.uima.tika;
 
-import org.apache.tika.language.LanguageIdentifier;
-import org.apache.tika.language.LanguageProfile;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.CasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
-import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Level;
-import org.apache.uima.util.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,7 +89,7 @@ public class MarkupAnnotator extends CasAnnotator_ImplBase {
 
         CAS plainTextView = cas.createView(textViewName);
         try (InputStream is = originalCas.getSofaDataStream()) {
-            tika.populateCASfromURL(plainTextView, is, null, null, null);
+            tika.populateCASfromURL(plainTextView, is, null, null);
         } catch (IOException | CASException e) {
             throw new AnalysisEngineProcessException(e);
         }
