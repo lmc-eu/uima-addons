@@ -22,6 +22,9 @@
   <description>Annotations used for representing markup. See http://cwiki.apache.org/UIMA/uima-sandbox-components.html</description>
   <version>1.0</version>
   <vendor>Apache Software Foundation</vendor>
+  <imports>
+    <import name="org.apache.uima.examples.SourceDocumentInformation"/>
+  </imports>
   <types>
     <typeDescription>
       <name>org.apache.uima.tika.MarkupAnnotation</name>

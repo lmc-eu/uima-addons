@@ -80,6 +80,7 @@
       <capability>
         <inputs/>
         <outputs>
+          <type allAnnotatorFeatures="true">org.apache.uima.examples.SourceDocumentInformation</type>
           <type allAnnotatorFeatures="true">org.apache.uima.tika.SourceDocumentAnnotation</type>
           <type allAnnotatorFeatures="true">org.apache.uima.tika.MarkupAnnotation</type>
           <type allAnnotatorFeatures="true">org.apache.uima.tika.FeatureValue</type>

@@ -23,6 +23,8 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.collection.CollectionReader_ImplBase;
+import org.apache.uima.examples.SourceDocumentInformation;
+import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceConfigurationException;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Level;
@@ -31,6 +33,7 @@ import org.apache.uima.util.ProgressImpl;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,10 +88,13 @@ public class FileSystemCollectionReader extends CollectionReader_ImplBase {
 		File file = mFiles.get(mCurrentIndex++);
 
 		// call Tika wrapper
-		try {
-			tika.populateCASfromURL(aCAS, file.toURI().toURL(), this.mMIME);
+        final URL url = file.getAbsoluteFile().toURI().toURL();
+        final JCas jCas;
+        try {
+            jCas = aCAS.getJCas();
+			tika.populateCASfromURL(aCAS, url, this.mMIME);
 		} catch (CASException e) {
-		  String msg = String.format("Problem converting file: %s\t%s%n", file.toURI().toURL(), e.getMessage());
+		  String msg = String.format("Problem converting file: %s\t%s%n", url, e.getMessage());
 			getLogger().log(Level.WARNING, msg);
 			if (e.getCause() instanceof IOException) {
 				throw (IOException) e.getCause();
@@ -99,6 +105,20 @@ public class FileSystemCollectionReader extends CollectionReader_ImplBase {
 		if (this.mLanguage!=null && !this.mLanguage.trim().isEmpty()) {
 			aCAS.setDocumentLanguage(mLanguage);
 		}
+
+        //---- copied from original org.apache.uima.tools.components.FileSystemCollectionReader
+        // Also store location of source document in CAS. This information is critical
+        // if CAS Consumers will need to know where the original document contents are located.
+        // For example, the Semantic Search CAS Indexer writes this information into the
+        // search index that it creates, which allows applications that use the search index to
+        // locate the documents that satisfy their semantic queries.
+        SourceDocumentInformation srcDocInfo = new SourceDocumentInformation(jCas);
+        srcDocInfo.setUri(url.toString());
+        srcDocInfo.setOffsetInSource(0);
+        srcDocInfo.setDocumentSize((int) file.length());
+        srcDocInfo.setLastSegment(mCurrentIndex == mFiles.size());
+        srcDocInfo.addToIndexes();
+
 	}
 
 	/**
