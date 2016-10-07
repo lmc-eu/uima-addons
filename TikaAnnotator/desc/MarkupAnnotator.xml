@@ -41,6 +41,13 @@
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
       </configurationParameter>
+      <configurationParameter>
+        <name>tikaLanguageDetector</name>
+        <description>Allows tika language detector to be used (deprecated, mostly useless).</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
@@ -53,6 +60,12 @@
         <name>TEXT_VIEW_PARAM_NAME</name>
         <value>
           <string>textView</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>tikaLanguageDetector</name>
+        <value>
+          <boolean>false</boolean>
         </value>
       </nameValuePair>
     </configurationParameterSettings>

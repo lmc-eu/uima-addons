@@ -53,12 +53,25 @@
         <multiValued>false</multiValued>
         <mandatory>false</mandatory>
       </configurationParameter>
+      <configurationParameter>
+        <name>tikaLanguageDetector</name>
+        <description>Allows tika language detector to be used (deprecated, mostly useless).</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
         <name>MIME</name>
         <value>
           <string>text/html</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>tikaLanguageDetector</name>
+        <value>
+          <boolean>false</boolean>
         </value>
       </nameValuePair>
     </configurationParameterSettings>
