@@ -76,14 +76,8 @@ element, and just changing the following two properties -->
       <groupId>org.apache.tika</groupId>
       <artifactId>tika-parsers</artifactId>
       <version>${tika-version}</version>
-      <exclusions>
-<!--
-        <exclusion>
-          <groupId>pdfbox</groupId>
-          <artifactId>pdfbox</artifactId>
-        </exclusion>
--->
-      </exclusions>
+      <!-- tika-parses have humungous dependencies; client should include its own dependency with proper excludes! -->
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.uima</groupId>
