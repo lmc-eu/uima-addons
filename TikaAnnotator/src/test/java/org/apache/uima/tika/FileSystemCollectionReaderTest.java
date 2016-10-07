@@ -92,7 +92,8 @@ public class FileSystemCollectionReaderTest {
         CollectionReaderDescription reader = CollectionReaderFactory.createReaderDescription(
                 FileSystemCollectionReader.class,
                 typeSystem,
-                FileSystemCollectionReader.PARAM_INPUTDIR, inputDir.toAbsolutePath().toString()
+                FileSystemCollectionReader.PARAM_INPUTDIR, inputDir.toAbsolutePath().toString(),
+                TIKAWrapperFactory.PARAM_DETECT_LANGUAGE, Boolean.TRUE
         );
         reader.doFullValidation();
         System.out.println("starting processing of files: " + TESTING_DOCS.getFilenames());

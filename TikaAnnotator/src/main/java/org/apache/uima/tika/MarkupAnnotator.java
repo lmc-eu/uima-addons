@@ -29,6 +29,7 @@ import org.apache.uima.cas.CASException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Level;
+import org.apache.uima.util.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -96,29 +97,7 @@ public class MarkupAnnotator extends CasAnnotator_ImplBase {
         } catch (IOException | CASException e) {
             throw new AnalysisEngineProcessException(e);
         }
-
-        JCas ptv;
-        try {
-            ptv = plainTextView.getJCas();
-        } catch (CASException e) {
-            //this should never happen...
-            throw new AnalysisEngineProcessException(e);
-        }
-    /* identify language */
-        extractLanguage(ptv);
     }
 
-    private void extractLanguage(JCas plainTextView) {
-        try {
-            LanguageIdentifier li = new LanguageIdentifier(new LanguageProfile(plainTextView.getDocumentText()));
-            if (li.getLanguage() != null && !"".equals(li.getLanguage()))
-                plainTextView.setDocumentLanguage(li.getLanguage());
-        } catch (Exception e) {
-            this.getContext().getLogger().log(Level.WARNING, new StringBuffer("Could not extract language due to ")
-                    .append(e.getLocalizedMessage()).toString());
-        }
-        this.getContext().getLogger().log(Level.INFO, new StringBuffer("Extracted language: ").append(plainTextView
-                .getDocumentLanguage()).toString());
-    }
 
 }

@@ -48,7 +48,9 @@ public class TikaMarkupAnnotatorTest {
                 getClass().getResource("/MarkupAnnotationTypeSystem.xml").toString()
         );
 
-        AnalysisEngine ae = AnalysisEngineFactory.createEngine(MarkupAnnotator.class, typeSystem);
+        AnalysisEngine ae = AnalysisEngineFactory.createEngine(MarkupAnnotator.class, typeSystem,
+                TIKAWrapperFactory.PARAM_DETECT_LANGUAGE, Boolean.TRUE
+        );
 
         Map<JCas, String> results = Maps.newIdentityHashMap();
 

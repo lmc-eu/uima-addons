@@ -19,8 +19,11 @@
 
 package org.apache.uima.tika;
 
+import com.google.common.collect.Sets;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.exception.TikaException;
+import org.apache.tika.language.LanguageIdentifier;
+import org.apache.tika.language.LanguageProfile;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.DefaultParser;
@@ -30,23 +33,39 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
+import org.apache.uima.util.Level;
+import org.apache.uima.util.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Set;
 
 
 public class TIKAWrapper {
 
-    // configuration for TIKA - can be created by specifying a custom resource
-    private TikaConfig config = null;
-
-    public TIKAWrapper() throws TikaException {
-        config = TikaConfig.getDefaultConfig();
+    public enum OptionalTikaFeature {
+        /**
+         * Use Tika's internal langauge detector; it's not only deprecated, but also very very limited (only
+         * a handful of languages). For these reasons, it's reccomended to NOT use it.
+         */
+        LANGUAGE_DETECTOR
     }
 
-    public TIKAWrapper(String configLocation) throws TikaException {
+    protected final Logger logger;
+    protected final Set<OptionalTikaFeature> enabledFeatures;
+    // configuration for TIKA - can be created by specifying a custom resource
+    private TikaConfig config;
+
+    public TIKAWrapper(Logger logger, String configLocation, OptionalTikaFeature... features) throws TikaException {
+        this(logger, configLocation, Sets.newEnumSet(Arrays.asList(features), OptionalTikaFeature.class));
+    }
+
+    public TIKAWrapper(Logger logger, String configLocation, Set<OptionalTikaFeature> features) throws TikaException {
+        this.logger = logger;
+        this.enabledFeatures = features;
         if (configLocation != null)
             try {
                 config = new TikaConfig(configLocation);
@@ -58,7 +77,7 @@ public class TIKAWrapper {
 
 
     public void populateCASfromURL(CAS cas, URL url, String mime, String language) throws CASException, IOException {
-        try(InputStream is = url.openStream(); InputStream originalStream = new BufferedInputStream(is)) {
+        try (InputStream is = url.openStream(); InputStream originalStream = new BufferedInputStream(is)) {
             populateCASfromURL(cas, originalStream, url, mime, language);
         }
     }
@@ -126,5 +145,23 @@ public class TIKAWrapper {
         }
 
         docAnnotation.addToIndexes();
+
+        //extract language
+        if (enabledFeatures.contains(OptionalTikaFeature.LANGUAGE_DETECTOR)) {
+            extractLanguage(jcas);
+        }
     }
+
+    @SuppressWarnings("deprecation")
+    private void extractLanguage(JCas plainTextView) {
+        try {
+            LanguageIdentifier li = new LanguageIdentifier(new LanguageProfile(plainTextView.getDocumentText()));
+            if (li.getLanguage() != null && !"".equals(li.getLanguage()))
+                plainTextView.setDocumentLanguage(li.getLanguage());
+        } catch (Exception e) {
+            logger.log(Level.INFO, "Could not extract language due to " + e);
+        }
+        logger.log(Level.FINE, "Extracted language: " + plainTextView.getDocumentLanguage());
+    }
+
 }
