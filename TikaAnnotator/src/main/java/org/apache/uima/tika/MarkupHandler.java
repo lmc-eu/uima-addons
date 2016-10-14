@@ -66,6 +66,16 @@ public class MarkupHandler implements ContentHandler {
         textBuffer.append(ch, start, length);
     }
 
+    /**
+     * Whitespaces are actually the same as normal characters. Most parsers (notably PDF one)
+     * uses this to generate newline... and ignoring newlines is not something we should do!
+     */
+    public void ignorableWhitespace(char[] ch, int start, int length)
+            throws SAXException {
+        characters(ch, start, length);
+    }
+
+
     public void startDocument() throws SAXException {
     }
 
@@ -113,10 +123,6 @@ public class MarkupHandler implements ContentHandler {
         // add a \n otherwise we get everything
         // on a single line
         textBuffer.append("\n");
-    }
-
-    public void ignorableWhitespace(char[] ch, int start, int length)
-            throws SAXException {
     }
 
     // the following methods are simply ignored
