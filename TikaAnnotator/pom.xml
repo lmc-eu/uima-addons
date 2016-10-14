@@ -22,7 +22,7 @@
 
   <groupId>org.apache.uima</groupId>
   <artifactId>TikaAnnotator</artifactId>
-  <version>fork.2.3.4</version>
+  <version>fork.2.3.5-SNAPSHOT</version>
   <name>Apache UIMA Annotator: ${project.artifactId}</name>
 
   <!-- Special inheritance note
