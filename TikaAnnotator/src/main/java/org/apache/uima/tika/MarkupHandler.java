@@ -29,6 +29,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
+import javax.swing.text.html.HTML;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -120,9 +121,15 @@ public class MarkupHandler implements ContentHandler {
         startedAnnotations.remove(startedAnnot);
         protoAnnotations.add(startedAnnot);
 
-        // add a \n otherwise we get everything
-        // on a single line
-        textBuffer.append("\n");
+
+        //is the element block/paragraph/break one?
+        // use swing element datase... very convenient
+        final HTML.Tag tag = HTML.getTag(startedAnnot.getLocalName().toLowerCase());
+        if (tag != null && (tag.breaksFlow() || tag.isBlock())) {
+            // add a \n otherwise we get everything
+            // on a single line
+            textBuffer.append("\n");
+        }
     }
 
     // the following methods are simply ignored
