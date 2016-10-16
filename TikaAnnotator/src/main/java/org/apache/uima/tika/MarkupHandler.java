@@ -194,12 +194,15 @@ public class MarkupHandler implements ContentHandler {
         }
     }
 
-    private static final Pattern INVALID_CHAR = Pattern.compile("[\u0000-\u0008\u000B\u000C\u000E-\u001F]");
+    /**
+     * Note: although XML standard explicitly allows \uFFFD, standard java serializer chokes on that!
+     */
+    private static final Pattern INVALID_CHAR = Pattern.compile("[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFD-\uFFFF]");
 
     /**
      * Ensure that string does not contain invalid characters that cannot be written to XML.
      */
-    private String removeInvalidChars(String value) {
+    public static String removeInvalidChars(String value) {
         return INVALID_CHAR.matcher(value).replaceAll("");
     }
 

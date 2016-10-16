@@ -130,8 +130,8 @@ public class TIKAWrapper {
         }
         int i = 0;
         for (; i < md.size(); i++) {
-            String name = md.names()[i];
-            String value = md.get(name);
+            String name = MarkupHandler.removeInvalidChars(md.names()[i]);
+            String value = MarkupHandler.removeInvalidChars(md.get(name));
             FeatureValue fv = new FeatureValue(cas.getJCas());
             fv.setName(name);
             fv.setValue(value);
