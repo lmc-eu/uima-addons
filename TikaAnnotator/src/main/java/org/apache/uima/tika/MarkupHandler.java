@@ -33,6 +33,7 @@ import javax.swing.text.html.HTML;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /*******************************************************************************
  * SAX Handler which gets events from the Tika parser events and create UIMA
@@ -181,7 +182,7 @@ public class MarkupHandler implements ContentHandler {
                 afs.setLocalName(protoAttributes.getLocalName(index));
                 afs.setQualifiedName(protoAttributes.getQName(index));
                 afs.setUri(protoAttributes.getURI(index));
-                afs.setValue(protoAttributes.getValue(index));
+                afs.setValue(removeInvalidChars(protoAttributes.getValue(index)));
                 afs.addToIndexes();
                 attribs.set(index, afs);
             }
@@ -191,6 +192,15 @@ public class MarkupHandler implements ContentHandler {
             markup.setQualifiedName(proto.getQName());
             markup.addToIndexes();
         }
+    }
+
+    private static final Pattern INVALID_CHAR = Pattern.compile("[\u0000-\u0008\u000B\u000C\u000E-\u001F]");
+
+    /**
+     * Ensure that string does not contain invalid characters that cannot be written to XML.
+     */
+    private String removeInvalidChars(String value) {
+        return INVALID_CHAR.matcher(value).replaceAll("");
     }
 
 
